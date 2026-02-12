@@ -240,7 +240,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
