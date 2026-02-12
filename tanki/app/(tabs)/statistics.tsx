@@ -87,7 +87,9 @@ export default function StatisticsScreen() {
         </View>
 
         {/* TANK SELECTOR */}
-        <Text style={styles.sectionTitle}>SELECT TANK</Text>
+        <Text style={[styles.sectionTitle, styles.firstSectionTitle]}>
+          SELECT TANK
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -283,7 +285,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 1.2,
     marginHorizontal: 20,
+    marginTop: 24,
     marginBottom: 16,
+  },
+
+  firstSectionTitle: {
+    marginTop: 8,
   },
 
   tankSelector: {
