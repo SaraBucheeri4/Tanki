@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -73,7 +74,7 @@ export default function StatisticsScreen() {
   const [selectedTank, setSelectedTank] = useState(TANK_STATS[0]);
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -240,7 +241,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -282,8 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 1.2,
     marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 12,
+    marginBottom: 16,
   },
 
   tankSelector: {

@@ -431,7 +431,8 @@ const styles = StyleSheet.create({
     color: "#64748B",
     fontSize: 11,
     letterSpacing: 1.2,
-    margin: 20,
+    marginHorizontal: 20,
+    marginBottom: 16,
   },
 
   statsRow: {
