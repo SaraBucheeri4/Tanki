@@ -12,6 +12,7 @@ const TANKS_DATA = [
     currentLiters: 3750,
     maxCapacity: 5000,
     temperature: 24,
+    clarity: "Clear",
     status: "active",
     lastSync: "2 min ago",
     performance: {
@@ -37,6 +38,7 @@ const TANKS_DATA = [
     currentLiters: 900,
     maxCapacity: 2000,
     temperature: 22,
+    clarity: "Clear",
     status: "active",
     lastSync: "5 min ago",
     performance: {
@@ -62,6 +64,7 @@ const TANKS_DATA = [
     currentLiters: 2700,
     maxCapacity: 3000,
     temperature: 20,
+    clarity: "Clear",
     status: "standby",
     lastSync: "1 min ago",
     performance: {
@@ -155,19 +158,15 @@ export default function TanksScreen() {
               </View>
 
               <View style={styles.statItem}>
-                <Ionicons name="sync-outline" size={20} color="#3B9EFF" />
-                <Text style={styles.statLabel}>Last Sync</Text>
-                <Text style={styles.statValue}>{tank.lastSync}</Text>
+                <Ionicons name="water-outline" size={20} color="#00D9A5" />
+                <Text style={styles.statLabel}>Water Clarity</Text>
+                <Text style={styles.statValue}>{tank.clarity}</Text>
               </View>
 
               <View style={styles.statItem}>
-                <Ionicons
-                  name="speedometer-outline"
-                  size={20}
-                  color="#00D9A5"
-                />
-                <Text style={styles.statLabel}>Max Capacity</Text>
-                <Text style={styles.statValue}>{tank.maxCapacity}L</Text>
+                <Ionicons name="sync-outline" size={20} color="#3B9EFF" />
+                <Text style={styles.statLabel}>Last Sync</Text>
+                <Text style={styles.statValue}>{tank.lastSync}</Text>
               </View>
             </View>
           </View>
