@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { fetchAggregatedStats } from "../../backend/tankApi";
 import {
   View,
   Text,
@@ -15,12 +16,24 @@ const { width } = Dimensions.get("window");
 const cardWidth = (width - 52) / 2;
 
 export default function TankiDashboard() {
-  const [tankLevel] = useState(65);
-  const [volume] = useState(650);
-  const [maxVolume] = useState(1000);
+  const [tankLevel, setTankLevel] = useState(0);
+  const [volume, setVolume] = useState(0);
+  const [maxVolume, setMaxVolume] = useState(0);
   const [estimatedTime] = useState("~3 Days");
-  const [lastSync] = useState("2m ago");
+  const [lastSync, setLastSync] = useState("--");
   const [battery] = useState(92);
+
+  useEffect(() => {
+    fetchAggregatedStats()
+      .then((stats) => {
+        console.log('[index.tsx] fetchAggregatedStats result:', JSON.stringify(stats));
+        setTankLevel(stats.percentageFull);
+        setVolume(stats.totalLiters);
+        setMaxVolume(stats.totalCapacity);
+        setLastSync(stats.lastSync);
+      })
+      .catch((err: unknown) => console.log('[index.tsx] Error loading dashboard data:', err));
+  }, []);
 
   const [pumpOn, setPumpOn] = useState(false);
   const [coolerOn, setCoolerOn] = useState(false);
@@ -42,18 +55,23 @@ export default function TankiDashboard() {
 
         {/* TANK VISUAL */}
         <View style={styles.tankContainer}>
-          <View style={styles.tankCircle}>
-            <View style={styles.innerTank}>
+          <View style={styles.tankRingOuter}>
+            <View style={styles.tankCircle}>
               <View style={[styles.waterFill, { height: `${tankLevel}%` }]}>
                 <LinearGradient
-                  colors={["#4DA8FF", "#2E8BE6"]}
-                  style={styles.waterGradient}
-                >
-                  <Text style={styles.percentage}>{tankLevel}%</Text>
-                  <View style={styles.levelPill}>
-                    <Text style={styles.levelText}>Normal Level</Text>
-                  </View>
-                </LinearGradient>
+                  colors={["#0A3D7A", "#1A6BC8", "#4DA8FF"]}
+                  start={{ x: 0, y: 1 }}
+                  end={{ x: 0, y: 0 }}
+                  style={{ flex: 1 }}
+                />
+              </View>
+              <View style={styles.tankOverlay}>
+                <Text style={styles.percentage}>{tankLevel}%</Text>
+                <View style={styles.levelPill}>
+                  <Text style={styles.levelText}>
+                    {tankLevel >= 70 ? "High Level" : tankLevel >= 30 ? "Normal Level" : "Low Level"}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -224,57 +242,67 @@ const styles = StyleSheet.create({
 
   tankContainer: {
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 28,
   },
 
-  tankCircle: {
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "#020617",
-    shadowColor: "#000",
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
+  tankRingOuter: {
+    width: 284,
+    height: 284,
+    borderRadius: 142,
+    backgroundColor: "#1A3A5C",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#3B9EFF",
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
     elevation: 12,
   },
 
-  innerTank: {
-    flex: 1,
-    borderRadius: 130,
+  tankCircle: {
+    width: 268,
+    height: 268,
+    borderRadius: 134,
+    backgroundColor: "#0B1929",
     overflow: "hidden",
-    backgroundColor: "#1E293B",
-    justifyContent: "flex-end",
   },
 
   waterFill: {
-    width: "100%",
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 
-  waterGradient: {
+  tankOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 24,
   },
 
   percentage: {
-    fontSize: 56,
+    fontSize: 60,
     fontWeight: "800",
     color: "#fff",
   },
 
   levelPill: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    paddingHorizontal: 14,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
-    marginTop: 10,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
 
   levelText: {
-    color: "#fff",
-    fontSize: 14,
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 13,
+    fontWeight: "500",
   },
 
   statusCard: {
