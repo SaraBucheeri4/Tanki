@@ -130,6 +130,15 @@ export default function TanksScreen() {
                     </Text>
                   </View>
                 </View>
+
+                {/* Prediction Row */}
+                <View style={styles.predictionRow}>
+                  <Ionicons name="trending-up-outline" size={15} color="#F59E0B" />
+                  <Text style={styles.predictionLabel}>Predicted next level</Text>
+                  <Text style={styles.predictionValue}>
+                    {tank.predictedLevel !== null ? `${tank.predictedLevel.toFixed(1)}%` : "All good"}
+                  </Text>
+                </View>
               </View>
             );
           })
@@ -301,5 +310,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "600",
+  },
+
+  predictionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#0F172A",
+  },
+
+  predictionLabel: {
+    flex: 1,
+    color: "#94A3B8",
+    fontSize: 12,
+  },
+
+  predictionValue: {
+    color: "#F59E0B",
+    fontSize: 14,
+    fontWeight: "700",
   },
 });

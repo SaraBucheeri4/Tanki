@@ -19,6 +19,7 @@ export type TankReading = {
 
 export type TankWithReading = Tank & {
   latestReading: TankReading | null;
+  predictedLevel: number | null;
 };
 
 export function formatLastSync(createdAt: string | null | undefined): string {
@@ -66,6 +67,22 @@ export async function fetchLatestReading(tankId: string): Promise<TankReading | 
   return data;
 }
 
+export async function fetchLatestPrediction(tankId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('predictions')
+    .select('predicted_level')
+    .eq('tank_id', tankId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.log(`[tankApi] fetchLatestPrediction ERROR for ${tankId}:`, JSON.stringify(error));
+    return null;
+  }
+  return data ? Number(data.predicted_level) : null;
+}
+
 export async function fetchTanksWithLatestReadings(): Promise<TankWithReading[]> {
   console.log('[tankApi] fetchTanksWithLatestReadings: starting...');
   const tanks = await fetchAllTanks();
@@ -73,8 +90,11 @@ export async function fetchTanksWithLatestReadings(): Promise<TankWithReading[]>
 
   const tanksWithReadings = await Promise.all(
     tanks.map(async (tank) => {
-      const latestReading = await fetchLatestReading(tank.id);
-      return { ...tank, latestReading };
+      const [latestReading, predictedLevel] = await Promise.all([
+        fetchLatestReading(tank.id),
+        fetchLatestPrediction(tank.id),
+      ]);
+      return { ...tank, latestReading, predictedLevel };
     })
   );
 
@@ -86,6 +106,7 @@ export type AggregatedStats = {
   totalLiters: number;
   totalCapacity: number;
   percentageFull: number;
+  predictedPercentageFull: number | null;
   lastSync: string;
 };
 
@@ -102,8 +123,13 @@ export async function fetchAggregatedStats(): Promise<AggregatedStats> {
     .sort()
     .at(-1);
 
-  console.log('[tankApi] fetchAggregatedStats:', { totalLiters, totalCapacity, percentageFull });
-  return { totalLiters, totalCapacity, percentageFull, lastSync: formatLastSync(latestDate) };
+  const tanksWithPredictions = tanks.filter((t) => t.predictedLevel !== null);
+  const predictedPercentageFull = tanksWithPredictions.length > 0
+    ? Math.round(tanksWithPredictions.reduce((sum, t) => sum + t.predictedLevel!, 0) / tanksWithPredictions.length)
+    : null;
+
+  console.log('[tankApi] fetchAggregatedStats:', { totalLiters, totalCapacity, percentageFull, predictedPercentageFull });
+  return { totalLiters, totalCapacity, percentageFull, predictedPercentageFull, lastSync: formatLastSync(latestDate) };
 }
 
 export async function fetchFirstTankWithReading(): Promise<TankWithReading | null> {
@@ -120,6 +146,9 @@ export async function fetchFirstTankWithReading(): Promise<TankWithReading | nul
 
   if (!data) return null;
 
-  const latestReading = await fetchLatestReading(data.id);
-  return { ...data, latestReading };
+  const [latestReading, predictedLevel] = await Promise.all([
+    fetchLatestReading(data.id),
+    fetchLatestPrediction(data.id),
+  ]);
+  return { ...data, latestReading, predictedLevel };
 }

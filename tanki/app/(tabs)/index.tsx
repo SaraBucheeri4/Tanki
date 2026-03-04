@@ -22,6 +22,7 @@ export default function TankiDashboard() {
   const [estimatedTime] = useState("~3 Days");
   const [lastSync, setLastSync] = useState("--");
   const [battery] = useState(92);
+  const [predictedLevel, setPredictedLevel] = useState<number | null>(null);
 
   useEffect(() => {
     fetchAggregatedStats()
@@ -31,6 +32,7 @@ export default function TankiDashboard() {
         setVolume(stats.totalLiters);
         setMaxVolume(stats.totalCapacity);
         setLastSync(stats.lastSync);
+        setPredictedLevel(stats.predictedPercentageFull);
       })
       .catch((err: unknown) => console.log('[index.tsx] Error loading dashboard data:', err));
   }, []);
@@ -77,7 +79,15 @@ export default function TankiDashboard() {
           </View>
         </View>
 
-        {/* SYSTEM STATUS */}
+        {/* PREDICTION BADGE */}
+        <View style={styles.predictionBadge}>
+          <Ionicons name="trending-up-outline" size={14} color="#F59E0B" />
+          <Text style={styles.predictionBadgeText}>
+            {predictedLevel !== null ? `Predicted next: ${predictedLevel}%` : "Everything is alright so far"}
+          </Text>
+        </View>
+
+        {/* SYSTEM STATUS
         <View style={styles.statusCard}>
           <View style={styles.statusLeft}>
             <View style={styles.statusIcon}>
@@ -91,7 +101,7 @@ export default function TankiDashboard() {
             </View>
           </View>
           <Text style={styles.details}>Details</Text>
-        </View>
+        </View> */}
 
         {/* MAIN CONTROLS */}
         <View style={styles.controlRow}>
@@ -303,6 +313,26 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     fontSize: 13,
     fontWeight: "500",
+  },
+
+  predictionBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "center",
+    gap: 6,
+    backgroundColor: "#1C1400",
+    borderWidth: 1,
+    borderColor: "#F59E0B",
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+
+  predictionBadgeText: {
+    color: "#F59E0B",
+    fontSize: 13,
+    fontWeight: "600",
   },
 
   statusCard: {
